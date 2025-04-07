@@ -20,7 +20,7 @@ impl Context {
          self.broadcast(protocol_msg).await;
      }
     
-
+    
     pub async fn start_rbc(self: &mut Context){
         if self.myid == 0 { //check if process is the leader
             //if so, send init msg
@@ -63,7 +63,7 @@ impl Context {
             let n = self.num_nodes;
             let f = (n-1) / 3;
 
-            if *echo_count >= (n+f)/2{
+            if *echo_count >= (n-f){
                 // only send ready once per value
                 if !self.already_sent_ready.contains_key(&value){
                     self.already_sent_ready.insert(value.clone(), true);
@@ -91,7 +91,7 @@ impl Context {
             let n = self.num_nodes;
             let f = (n-1) / 3;
 
-            if (echo_count >= (n+f)/2 || ready_count >= f + 1) && !self.already_sent_ready.contains_key(&value){
+            if (echo_count >= (n-f) || ready_count >= (f+1)) && !self.already_sent_ready.contains_key(&value){
 
                 self.already_sent_ready.insert(value.clone(), true);
                 
@@ -101,7 +101,7 @@ impl Context {
                 self.broadcast(wrapped).await;
             }
 
-            if ready_count >= 2*f + 1 {
+            if ready_count >= (n-f) {
                 log::info!("Node {} calling terminate with value: {}", self.myid, value);
                 self.terminate(value).await;
             }
