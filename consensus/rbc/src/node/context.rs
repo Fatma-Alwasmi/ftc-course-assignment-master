@@ -1,11 +1,11 @@
 use std::{collections::HashMap, net::{SocketAddr, SocketAddrV4}, time::{SystemTime, UNIX_EPOCH}};
-
+use std::collections::VecDeque;
 use anyhow::{Result, anyhow};
 use config::Node;
 use fnv::FnvHashMap;
 use network::{plaintcp::{TcpReceiver, TcpReliableSender, CancelHandler}, Acknowledgement};
 use tokio::sync::{oneshot, mpsc::{unbounded_channel, UnboundedReceiver}};
-use types::{{WrapperMsg, Replica, ProtMsg}, SyncMsg, SyncState};
+use types::{{WrapperMsg, Replica, ProtMsg, Msg}, SyncMsg, SyncState};
 
 use super::{Handler, SyncHandler};
 
@@ -34,6 +34,8 @@ pub struct Context {
     pub echo_count: HashMap<String, usize>,
     pub ready_count: HashMap<String, usize>,
     pub already_sent_ready: HashMap<String, bool>,
+    pub already_sent_echo: HashMap<String, bool>,
+    pub local_rbc_msgs: VecDeque<Msg>,
 
 
 }
@@ -91,6 +93,8 @@ impl Context {
                 echo_count: HashMap::new(),
                 ready_count: HashMap::new(),
                 already_sent_ready: HashMap::new(),
+                already_sent_echo: HashMap::new(),
+                local_rbc_msgs: VecDeque::new(),
                 inp_message:message
             };
             for (id, sk_data) in config.sk_map.clone() {

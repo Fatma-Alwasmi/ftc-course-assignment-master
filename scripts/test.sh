@@ -19,34 +19,34 @@ TYPE=${TYPE:="release"}
      --syncer $1 \
      --byzantine false > logs/syncer.log &
 
-for((i=0;i<4;i++)); do
-./target/$TYPE/node \
-    --config $TESTDIR/nodes-$i.json \
-    --ip ip_file \
-    --protocol rbc \
-    --input $2 \
-    --syncer $1 \
-    --byzantine $3 > logs/$i.log &
-done
-
-
-# #4 nodes with i byzantine node 
 # for((i=0;i<4;i++)); do
-#   if [[ $i -eq 3 ]]; then
-#     # Make node 3 Byzantine (33% of 4 nodes)
-#     byz=true
-#   else
-#     byz=false
-#   fi
-#
-#   ./target/$TYPE/node \
+# ./target/$TYPE/node \
 #     --config $TESTDIR/nodes-$i.json \
 #     --ip ip_file \
 #     --protocol rbc \
 #     --input $2 \
 #     --syncer $1 \
-#     --byzantine $byz > logs/$i.log &
+#     --byzantine $3 > logs/$i.log &
 # done
+
+
+#4 nodes with i byzantine node 
+for((i=0;i<4;i++)); do
+  if [[ $i -eq 3 ]]; then
+    # Make node 3 Byzantine (33% of 4 nodes)
+    byz=true
+  else
+    byz=false
+  fi
+
+  ./target/$TYPE/node \
+    --config $TESTDIR/nodes-$i.json \
+    --ip ip_file \
+    --protocol rbc \
+    --input $2 \
+    --syncer $1 \
+    --byzantine $byz > logs/$i.log &
+done
 
 #check 16 nodes with 33% byzantine
 # for((i=0;i<16;i++)); do
