@@ -27,13 +27,12 @@ impl Context{
         let msg = Arc::new(wrapper_msg.clone());
         if self.check_proposal(msg){
             match wrapper_msg.clone().protmsg {
-                 //Handle each message type appropriately and write functions to evaluate each type of message
-                 ProtMsg::Ping(main_msg,rep)=> {
-                     // RBC initialized
-                     log::info!("Received Ping from node : {:?}",rep);
-                     self.handle_ping(main_msg).await;
-                 },
-                
+                //Handle each message type appropriately and write functions to evaluate each type of message
+                ProtMsg::Ping(main_msg,rep)=> {
+                    // RBC initialized
+                    log::info!("Received Ping from node : {:?}",rep);
+                    self.handle_ping(main_msg).await;
+                },
                 ProtMsg::Rbc(bytes)=> {
                     let msg = Msg {
                         content: bytes,

@@ -53,8 +53,8 @@ impl Context {
             if self.pbft_values.len() >= required_nodes{
                 log::info!("Leader has recieved enough values {}/{}, starting agreement phase", self.pbft_values.len(), self.num_nodes);
                 
-                let values_vec: Vec<String> = self.pbft_values.values().cloned().filter_map(|v| v.parse::<f64>().ok()).collect();
-                let values_str = serde_json::to_string(&values_vec).unwrap();
+                let values_vec: Vec<String> = self.pbft_values.values().cloned().collect();
+                let values_str = values_vec.join(",");
                 
                 self.inp_message = values_str.into_bytes();
                 log::info!("leader initiating Bracha");
@@ -201,24 +201,30 @@ impl Context {
             if *ready_count >= (n - f) {
                 log::info!("Node {} calling terminate with value: {}", self.myid, value);
                 //-------------pbft reciever
-                let values: Vec<f64> = serde_json::from_str(&value).unwrap_or_default();
+                if value.contains(',') {
+                    // This is the result of PBFT collection - calculate median
+                    let values: Vec<f64> = value
+                        .split(',')
+                        .filter_map(|v| v.parse::<f64>().ok())
+                        .collect();
+                
 
-                if !values.is_empty(){
-                    let mut sorted_values = values.clone();
-                    sorted_values.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                    if !values.is_empty(){
+                        let mut sorted_values = values.clone();
+                        sorted_values.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-                    let median = if sorted_values.len() % 2 == 0 {
+                        let median = if sorted_values.len() % 2 == 0 {
 
-                        (sorted_values[sorted_values.len()/2 - 1] + sorted_values[sorted_values.len()/2]) / 2.0
+                            (sorted_values[sorted_values.len()/2 - 1] + sorted_values[sorted_values.len()/2]) / 2.0
 
+                        }
+                        else {
+                            sorted_values[sorted_values.len()/2]
+                        };
+                        log::info!("Node {} calculated median: {}", self.myid, median);
+                        self.terminate(median.to_string()).await;
                     }
-                    else {
-                        sorted_values[sorted_values.len()/2]
-                    };
-                    log::info!("Node {} calculated median: {}", self.myid, median);
-                    self.terminate(median.to_string()).await;
                 }
-
                 else{
                     self.terminate(value).await;
 

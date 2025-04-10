@@ -1,7 +1,7 @@
 use std::{sync::Arc};
 use types::Msg;
 use crypto::hash::{verf_mac};
-use types::{{WrapperMsg, ProtMsg}};
+use types::{{WrapperMsg, ProtMsg}, SyncMsg, SyncState};
 use crate::node::{
     context::Context
 };
@@ -27,7 +27,6 @@ impl Context{
         let msg = Arc::new(wrapper_msg.clone());
         if self.check_proposal(msg){
             match wrapper_msg.clone().protmsg {
-                // Handle each message type appropriately and write functions to evaluate each type of message
                 ProtMsg::Ping(main_msg,rep)=> {
                     // RBC initialized
                     log::info!("Received Ping from node : {:?}",rep);
@@ -42,7 +41,7 @@ impl Context{
                     log::info!("Received RBC from node {:?}", wrapper_msg.sender);
                     self.handle_rbc(msg).await;
                 },
-                ProtMsg::Pbft(value_str, origin) => {
+                ProtMsg::Pbft(value_str, origin)=> {
                     // Create a Msg to pass to handle_pbft
                     let msg = Msg {
                         content: value_str.into_bytes(),
@@ -52,11 +51,23 @@ impl Context{
                     log::info!("Received PBFT input from node {:?}", wrapper_msg.sender);
                     self.handle_pbft(msg).await;
                 },
+                _ => {
+                    log::warn!("Received unknown message type");
+                },
+            }
+                
             }
 
         }
         else {
             log::warn!("MAC Verification failed for message {:?}",wrapper_msg.protmsg);
         }
+    }
+    // Invoke this function once you terminate the protocol
+    pub async fn terminate(&mut self,data:String){
+        let cancel_handler = self.sync_send.send(0,
+            SyncMsg { sender: self.myid, state: SyncState::COMPLETED,value:data}
+        ).await;
+        self.add_cancel_handler(cancel_handler);
     }
 }
