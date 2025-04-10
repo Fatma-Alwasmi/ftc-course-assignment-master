@@ -19,19 +19,19 @@ impl Context {
 
         let value_str = String::from_utf8(self.inp_message.clone()).unwrap();
         log::info!("Node {} starting PBFT with value {}", self.myid, value_str);
-
-        let pbft_msg = ProtMsg::Pbft(value_str.clone(), self.myid);
+        let tagged_value = format!("PBFT_VALUE:{}", value_str);
         if self.myid == 0{
 
             let msg = Msg{
-                content: value_str.clone().into_bytes(),
+                content: tagged_value.clone().into_bytes(),
                 origin: self.myid,
             };
             self.handle_pbft(msg).await;
         }
         else{
             //let wrapped = ProtMsg::pbft(pbft_msg);
-            log::info!("Node {} sending value to leader", self.myid);
+            let tagged_value = format!("PBFT_VALUE:{}", value_str);
+            let pbft_msg = ProtMsg::Pbft(tagged_value.clone(), self.myid);
             let wrapped = WrapperMsg::new(pbft_msg, self.myid, &self.sec_key_map[&0]);
             self.send(0, wrapped).await;
             

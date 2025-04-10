@@ -41,7 +41,7 @@ impl Context{
                     log::info!("Received RBC from node {:?}", wrapper_msg.sender);
                     self.handle_rbc(msg).await;
                 },
-                ProtMsg::Pbft(value_str, origin)=> {
+                ProtMsg::Pbft(value_str, _)=> {
                     // Create a Msg to pass to handle_pbft
                     let msg = Msg {
                         content: value_str.into_bytes(),
@@ -51,10 +51,7 @@ impl Context{
                     log::info!("Received PBFT input from node {:?}", wrapper_msg.sender);
                     self.handle_pbft(msg).await;
                 },
-                _ => {
-                    log::warn!("Received unknown message type");
-                },
-            }
+
                 
             }
 

@@ -167,8 +167,9 @@ impl Context {
                                 .as_millis());
                             // Start your protocol from here
                             // Write a function to broadcast a message. We demonstrate an example with a PING function
-                            self.start_ping().await;
                             self.start_pbft().await;
+                            self.start_ping().await;
+                            
 
                             let cancel_handler = self.sync_send.send(0, SyncMsg { sender: self.myid, state: SyncState::STARTED, value:"".to_string()}).await;
                             self.add_cancel_handler(cancel_handler);

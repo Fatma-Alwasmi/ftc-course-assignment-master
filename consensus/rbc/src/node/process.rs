@@ -42,6 +42,11 @@ impl Context{
                     log::info!("Received RBC from node {:?}", wrapper_msg.sender);
                     self.handle_rbc(msg).await;
                 },
+                ProtMsg::Pbft(_, _) => {
+                    // In the RBC module, you can just log that you received a PBFT message
+                    // // since it should be handled by the PBFT module
+                    log::debug!("Received PBFT message, ignoring in RBC module");
+                },
             }
         }
         else {

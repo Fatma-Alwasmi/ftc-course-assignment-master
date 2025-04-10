@@ -30,23 +30,39 @@ TYPE=${TYPE:="release"}
 # done
 
 
-#4 nodes with i byzantine node 
-for((i=0;i<4;i++)); do
-  if [[ $i -eq 3 ]]; then
-    # Make node 3 Byzantine (33% of 4 nodes)
-    byz=true
-  else
-    byz=false
-  fi
+#4 nodes with 1 byzantine node 
+# for((i=0;i<4;i++)); do
+#   if [[ $i -eq 3 ]]; then
+#     # Make node 3 Byzantine (33% of 4 nodes)
+#     byz=true
+#   else
+#     byz=false
+#   fi
+#
+#   ./target/$TYPE/node \
+#     --config $TESTDIR/nodes-$i.json \
+#     --ip ip_file \
+#     --protocol rbc \
+#     --input $2 \
+#     --syncer $1 \
+#     --byzantine $byz > logs/$i.log &
+# done
 
-  ./target/$TYPE/node \
+
+for((i=0;i<4;i++)); do
+./target/$TYPE/node \
     --config $TESTDIR/nodes-$i.json \
     --ip ip_file \
-    --protocol rbc \
-    --input $2 \
+    --protocol pbft \
+	--input ${vals[$i]} \
     --syncer $1 \
-    --byzantine $byz > logs/$i.log &
+    --byzantine $3 > logs/$i.log &
 done
+
+
+
+
+
 
 #check 16 nodes with 33% byzantine
 # for((i=0;i<16;i++)); do
@@ -55,7 +71,7 @@ done
 #     # Node 0 is the leader and must be honest
 #     byz=false
 #   elif [[ $i -le 5 ]]; then
-#     # Make 5 nodes Byzantine (nodes 1 to 5)
+
 #     byz=true
 #   else
 #     byz=false
