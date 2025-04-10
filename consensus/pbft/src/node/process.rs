@@ -1,5 +1,5 @@
 use std::{sync::Arc};
-
+use types::Msg;
 use crypto::hash::{verf_mac};
 use types::{{WrapperMsg, ProtMsg}};
 use crate::node::{

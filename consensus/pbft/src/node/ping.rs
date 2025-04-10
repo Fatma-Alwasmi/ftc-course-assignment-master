@@ -1,6 +1,6 @@
 //use std::collections::VecDeque;
 use types::{Msg, ProtMsg};
-
+use types::WrapperMsg;
 use super::Context;
 
 impl Context {
