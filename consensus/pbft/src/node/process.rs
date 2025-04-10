@@ -33,7 +33,24 @@ impl Context{
                     log::info!("Received Ping from node : {:?}",rep);
                     self.handle_ping(main_msg).await;
                 },
-                ProtMsg::Rbc(_)=> {
+                ProtMsg::Rbc(bytes)=> {
+                    let msg = Msg {
+                        content: bytes,
+                        origin: wrapper_msg.sender,
+                    };
+
+                    log::info!("Received RBC from node {:?}", wrapper_msg.sender);
+                    self.handle_rbc(msg).await;
+                },
+                ProtMsg::Pbft(value_str, origin) => {
+                    // Create a Msg to pass to handle_pbft
+                    let msg = Msg {
+                        content: value_str.into_bytes(),
+                        origin: wrapper_msg.sender,
+                    };
+                    
+                    log::info!("Received PBFT input from node {:?}", wrapper_msg.sender);
+                    self.handle_pbft(msg).await;
                 },
             }
 

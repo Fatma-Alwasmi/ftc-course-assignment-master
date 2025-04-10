@@ -31,6 +31,13 @@ pub struct Context {
     exit_rx: oneshot::Receiver<()>,
 
     // Add your custom fields here
+    pub pbft_values: HashMap<usize, String>,
+    pub echo_count: HashMap<String, usize>,
+    pub ready_count: HashMap<String, usize>,
+    pub already_sent_ready: HashMap<String, bool>,
+    pub already_sent_echo: HashMap<String, bool>,
+    pub local_rbc_msgs: VecDeque<Msg>,
+
 }
 
 impl Context {
@@ -80,6 +87,14 @@ impl Context {
                 num_faults: config.num_faults,
                 cancel_handlers:HashMap::default(),
                 exit_rx: exit_rx,
+                //-----initializing
+                pbft_values: HashMap::new(),
+                echo_count: HashMap::new(),
+                ready_count: HashMap::new(),
+                already_sent_ready: HashMap::new(),
+                already_sent_echo: HashMap::new(),
+                local_rbc_msgs: VecDeque::new(),
+
 
                 inp_message:message
             };

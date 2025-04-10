@@ -16,6 +16,7 @@ pub enum ProtMsg{
     // Example type is a ping message, which takes a Message and the sender replica
     Rbc(Vec<u8>),
     Ping(Msg,Replica),
+    Pbft(String, usize),
 }
 
 #[derive(Debug,Serialize,Deserialize,Clone)]
