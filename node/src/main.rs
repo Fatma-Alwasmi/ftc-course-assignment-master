@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
         .expect("Unable to parse syncer ip file");
     let byz_flag = m.value_of("byz")
         .expect("Unable to parse Byzantine flag");
-    let node_normal:bool = match byz_flag {
+    let _node_normal:bool = match byz_flag {
         "true"=> true,
         "false" => false,
         _=>{
@@ -67,8 +67,11 @@ async fn main() -> Result<()> {
         // "fre" => {
         //     //exit_tx = hash_cc::node::Context::spawn(config,sleep).unwrap();
         // },
-        "rbc" => {
-            exit_tx = rbc::node::Context::spawn(config, input_value.as_bytes().to_vec(),node_normal).unwrap();
+        // "rbc" => {
+        //     exit_tx = rbc::node::Context::spawn(config, input_value.as_bytes().to_vec(),node_normal).unwrap();
+        // },
+        "pbft" => {
+            exit_tx = pbft::node::Context::spawn(config, input_value.as_bytes().to_vec()).unwrap();
         },
         "sync" => {
             let f_str = syncer_file.to_string();

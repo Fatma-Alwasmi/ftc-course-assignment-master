@@ -49,15 +49,17 @@ impl Context {
 
             self.pbft_values.insert(msg.origin, value);
 
-            let required_nodes = (self.num_nodes*2)/3;
-            if self.pbft_values.len() >= required_nodes{
+            let required_nodes = (self.num_nodes*2 + 2)/3;
+            if self.pbft_values.len() >= required_nodes && !self.has_broadcast_rbc{
                 log::info!("Leader has recieved enough values {}/{}, starting agreement phase", self.pbft_values.len(), self.num_nodes);
+                self.has_broadcast_rbc = true;
                 
                 let values_vec: Vec<String> = self.pbft_values.values().cloned().collect();
                 let values_str = values_vec.join(",");
                 
                 self.inp_message = values_str.into_bytes();
                 log::info!("leader initiating Bracha");
+                log::info!("Leader broadcasting via RBC: {:?}", self.inp_message);
                 self.start_rbc().await;
 
             }
@@ -75,7 +77,14 @@ impl Context {
         //am i the leader?
         if self.myid == 0 {
             //if so send the INIT message
-            let msg_str = format!("SEND:{}", String::from_utf8(self.inp_message.clone()).unwrap());
+            let msg_str = match String::from_utf8(self.inp_message.clone()) {
+                Ok(s) => format!("SEND:{}", s),
+                Err(e) => {
+                    log::error!("PBFT: Failed to decode inp_message as UTF-8: {:?}", e);
+                    return;
+                }
+            };
+
             let bytes = msg_str.into_bytes();
 
             // Broadcast the SEND

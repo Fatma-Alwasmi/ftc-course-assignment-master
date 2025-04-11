@@ -37,6 +37,7 @@ pub struct Context {
     pub already_sent_ready: HashMap<String, bool>,
     pub already_sent_echo: HashMap<String, bool>,
     pub local_rbc_msgs: VecDeque<Msg>,
+    pub has_broadcast_rbc: bool,
 
 }
 
@@ -94,6 +95,7 @@ impl Context {
                 already_sent_ready: HashMap::new(),
                 already_sent_echo: HashMap::new(),
                 local_rbc_msgs: VecDeque::new(),
+                has_broadcast_rbc: false,
 
 
                 inp_message:message
@@ -168,7 +170,7 @@ impl Context {
                             // Start your protocol from here
                             // Write a function to broadcast a message. We demonstrate an example with a PING function
                             self.start_pbft().await;
-                            self.start_ping().await;
+                            //self.start_ping().await;
                             
 
                             let cancel_handler = self.sync_send.send(0, SyncMsg { sender: self.myid, state: SyncState::STARTED, value:"".to_string()}).await;

@@ -48,17 +48,34 @@ TYPE=${TYPE:="release"}
 #     --byzantine $byz > logs/$i.log &
 # done
 
+#pbft
+# for((i=0;i<4;i++)); do
+# ./target/$TYPE/node \
+#     --config $TESTDIR/nodes-$i.json \
+#     --ip ip_file \
+#     --protocol pbft \
+# 	--input ${vals[$i]} \
+#     --syncer $1 \
+#     --byzantine $3 > logs/$i.log &
+# done
 
+#4 nodes with 1 byzantine node 
 for((i=0;i<4;i++)); do
-./target/$TYPE/node \
+  if [[ $i -eq 3 ]]; then
+    # Make node 3 Byzantine (33% of 4 nodes)
+    byz=true
+  else
+    byz=false
+  fi
+
+  ./target/$TYPE/node \
     --config $TESTDIR/nodes-$i.json \
     --ip ip_file \
     --protocol pbft \
-	--input ${vals[$i]} \
+    --input ${vals[$i]} \
     --syncer $1 \
-    --byzantine $3 > logs/$i.log &
+    --byzantine $byz > logs/$i.log &
 done
-
 
 
 
