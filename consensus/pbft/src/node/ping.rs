@@ -35,6 +35,8 @@ impl Context {
             let wrapped = WrapperMsg::new(pbft_msg, self.myid, &self.sec_key_map[&0]);
             self.send(0, wrapped).await;
             
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            
         }
         
     }

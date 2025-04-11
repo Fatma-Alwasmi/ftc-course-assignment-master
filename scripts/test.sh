@@ -5,8 +5,8 @@ rm -rf /tmp/*.db &> /dev/null
 vals=(27000 27100 27200 27300)
 
 rand=$(shuf -i 1000-150000000 -n 1)
-TESTDIR=${TESTDIR:="testdata/hyb_4"}
-#TESTDIR=${TESTDIR:="testdata/hyb_16"}
+#TESTDIR=${TESTDIR:="testdata/hyb_4"}
+TESTDIR=${TESTDIR:="testdata/hyb_16"}
 
 TYPE=${TYPE:="release"}
 
@@ -49,7 +49,36 @@ TYPE=${TYPE:="release"}
 # done
 
 #pbft
+for((i=0;i<4;i++)); do
+./target/$TYPE/node \
+    --config $TESTDIR/nodes-$i.json \
+    --ip ip_file \
+    --protocol pbft \
+	--input ${vals[$i]} \
+    --syncer $1 \
+    --byzantine $3 > logs/$i.log &
+done
+
+#4 nodes with 1 byzantine node 
 # for((i=0;i<4;i++)); do
+#   if [[ $i -eq 3 ]]; then
+#     # Make node 3 Byzantine (33% of 4 nodes)
+#     byz=true
+#   else
+#     byz=false
+#   fi
+#
+#   ./target/$TYPE/node \
+#     --config $TESTDIR/nodes-$i.json \
+#     --ip ip_file \
+#     --protocol pbft \
+#     --input ${vals[$i]} \
+#     --syncer $1 \
+#     --byzantine $byz > logs/$i.log &
+# done
+
+
+# for((i=0;i<16;i++)); do
 # ./target/$TYPE/node \
 #     --config $TESTDIR/nodes-$i.json \
 #     --ip ip_file \
@@ -58,25 +87,6 @@ TYPE=${TYPE:="release"}
 #     --syncer $1 \
 #     --byzantine $3 > logs/$i.log &
 # done
-
-#4 nodes with 1 byzantine node 
-for((i=0;i<4;i++)); do
-  if [[ $i -eq 3 ]]; then
-    # Make node 3 Byzantine (33% of 4 nodes)
-    byz=true
-  else
-    byz=false
-  fi
-
-  ./target/$TYPE/node \
-    --config $TESTDIR/nodes-$i.json \
-    --ip ip_file \
-    --protocol pbft \
-    --input ${vals[$i]} \
-    --syncer $1 \
-    --byzantine $byz > logs/$i.log &
-done
-
 
 
 
