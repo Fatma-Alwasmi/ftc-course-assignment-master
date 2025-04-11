@@ -32,10 +32,33 @@ impl Context {
             //let wrapped = ProtMsg::pbft(pbft_msg);
             let tagged_value = format!("PBFT_VALUE:{}", value_str);
             let pbft_msg = ProtMsg::Pbft(tagged_value.clone(), self.myid);
-            let wrapped = WrapperMsg::new(pbft_msg, self.myid, &self.sec_key_map[&0]);
+            let wrapped = WrapperMsg::new(pbft_msg.clone(), self.myid, &self.sec_key_map[&0]);
             self.send(0, wrapped).await;
-            
+           //---------------EXTRA CREDIT----------------------- 
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+
+            if !self.rbc_started{
+                self.current_leader = 1;
+
+                if self.myid == self.current_leader {
+                    let msg = Msg {
+                        content: tagged_value.clone().into_bytes(),
+                        origin: self.myid,
+                    };
+                    self.handle_pbft(msg).await;
+                } 
+                else {
+                    let tagged_value = format!("PBFT_VALUE:{}", value_str);
+                    let pbft_msg = ProtMsg::Pbft(tagged_value.clone(), self.myid);
+                    let wrapped = WrapperMsg::new(pbft_msg.clone(), self.myid, &self.sec_key_map[&self.current_leader]); 
+                    self.send(self.current_leader, wrapped).await; 
+                }
+
+               
+            }
+            //-------------------------------------------------
+
+            
             
         }
         
@@ -45,7 +68,7 @@ impl Context {
 
         let content_str = String::from_utf8(msg.content.clone()).unwrap();
 
-        if content_str.starts_with("PBFT_VALUE:") && self.myid == 0{
+        if content_str.starts_with("PBFT_VALUE:") && self.myid == self.current_leader{
             let value = content_str.strip_prefix("PBFT_VALUE:").unwrap().to_string();
             log::info!("Leader received PBFT_VALUE: {} from node {}", value, msg.origin);
 
@@ -76,8 +99,9 @@ impl Context {
     //----------------RBC---------------
     // Initiates Bracha RBC from node 0
     pub async fn start_rbc(&mut self){
+        self.rbc_started = true;
         //am i the leader?
-        if self.myid == 0 {
+        if self.myid == self.current_leader {
             //if so send the INIT message
             let msg_str = match String::from_utf8(self.inp_message.clone()) {
                 Ok(s) => format!("SEND:{}", s),
@@ -233,11 +257,17 @@ impl Context {
                             sorted_values[sorted_values.len()/2]
                         };
                         log::info!("Node {} calculated median: {}", self.myid, median);
-                        self.terminate(median.to_string()).await;
+                        if !self.has_terminated{
+                            self.has_terminated = true;
+                            self.terminate(median.to_string()).await;
+                        }
                     }
                 }
                 else{
-                    self.terminate(value).await;
+                    if !self.has_terminated{
+                        self.has_terminated = true;
+                        self.terminate(value).await;
+                    }
 
                 }
             }

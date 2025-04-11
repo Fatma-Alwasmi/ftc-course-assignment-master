@@ -5,8 +5,8 @@ rm -rf /tmp/*.db &> /dev/null
 vals=(27000 27100 27200 27300)
 
 rand=$(shuf -i 1000-150000000 -n 1)
-#TESTDIR=${TESTDIR:="testdata/hyb_4"}
-TESTDIR=${TESTDIR:="testdata/hyb_16"}
+TESTDIR=${TESTDIR:="testdata/hyb_4"}
+#TESTDIR=${TESTDIR:="testdata/hyb_16"}
 
 TYPE=${TYPE:="release"}
 

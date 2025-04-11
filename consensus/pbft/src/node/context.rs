@@ -38,6 +38,9 @@ pub struct Context {
     pub already_sent_echo: HashMap<String, bool>,
     pub local_rbc_msgs: VecDeque<Msg>,
     pub has_broadcast_rbc: bool,
+    pub rbc_started: bool,
+    pub current_leader: usize,
+    pub has_terminated: bool,
 
 }
 
@@ -96,6 +99,9 @@ impl Context {
                 already_sent_echo: HashMap::new(),
                 local_rbc_msgs: VecDeque::new(),
                 has_broadcast_rbc: false,
+                rbc_started: false,
+                current_leader: 0,
+                has_terminated: false,
 
 
                 inp_message:message
